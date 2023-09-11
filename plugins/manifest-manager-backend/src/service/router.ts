@@ -1,11 +1,15 @@
-import { errorHandler } from '@backstage/backend-common';
+import { errorHandler, resolvePackagePath } from '@backstage/backend-common';
 import express from 'express';
 import Router from 'express-promise-router';
 import { Logger } from 'winston';
+import { readFileSync } from 'fs';
 
 export interface RouterOptions {
   logger: Logger;
 }
+
+
+const IndexHTML = readFileSync(resolvePackagePath("backstage-plugin-manifest-manager-backend", "src/service/index.html"));
 
 export async function createRouter(
   options: RouterOptions,
@@ -16,7 +20,10 @@ export async function createRouter(
   router.use(express.json());
 
   router.get('/', (_, response) => {
-    response.send("hello world").status(200);
+    response
+      .status(200)
+      .setHeader("Content-Type", "text/html; utf-8")
+      .send(IndexHTML);
   });
 
   router.get('/health', (_, response) => {
