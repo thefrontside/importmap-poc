@@ -26,6 +26,18 @@ export async function createRouter(
       .send(IndexHTML);
   });
 
+  router.get('/asset/:name', (request, response) => {
+    const pkg = resolvePackagePath(request.params.name, 'package.json');
+
+    const content = JSON.parse(`${readFileSync(pkg)}`);
+    const main = resolvePackagePath(request.params.name, content.publishConfig.main);
+    
+    response
+      .status(200)
+      .setHeader("Content-Type", "text/javascript; utf-8")
+      .send(readFileSync(main))
+  })
+
   router.get('/health', (_, response) => {
     logger.info('PONG!');
     response.json({ status: 'ok' });
